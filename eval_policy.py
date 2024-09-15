@@ -53,7 +53,7 @@ def rollout(policy, env, render):
     """
     # Rollout until user kills process
     while True:
-        obs = env.reset()
+        obs, _ = env.reset()
         done = False
 
         # number of timesteps so far
