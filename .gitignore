@@ -5,3 +5,7 @@ __pycache__/
 
 venv
 *.pth
+
+logs
+model_checkpoints
+hackathon_sample_v2.csv

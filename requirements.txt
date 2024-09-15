@@ -29,7 +29,6 @@ python-dateutil>=2.8.2
 pytz==2020.1
 scipy>=1.7.0
 six==1.15.0
-stable-baselines==2.10.1
 tensorboard>=2.17.0
 tensorflow==2.17.0
 tensorflow-estimator==1.14.0
@@ -38,3 +37,7 @@ torch>=2.2.0
 Werkzeug==1.0.1
 wrapt==1.12.1
 zipp==3.1.0
+gym-anytrading
+ipynb
+ipykernel
+stable-baselines3
