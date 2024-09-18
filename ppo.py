@@ -4,7 +4,7 @@
                         It can be found here: https://spinningup.openai.com/en/latest/_images/math/e62a8971472597f4b014c2da064f636ffe365ba3.svg
 """
 
-import gym
+import gymnasium as gym
 import time
 
 import numpy as np
@@ -20,7 +20,7 @@ class PPO:
             This is the PPO class we will use as our model in main.py
     """
 
-    def __init__(self, policy_class, env, **hyperparameters):
+    def __init__(self, policy_class, env_list, **hyperparameters):
         """
                 Initializes the PPO model, including hyperparameters.
 
@@ -33,16 +33,16 @@ class PPO:
                         None
         """
         # Make sure the environment is compatible with our code
-        assert (type(env.observation_space) == gym.spaces.Box)
-        assert (type(env.action_space) == gym.spaces.Box)
+        assert (type(env_list[0].observation_space) == gym.spaces.box.Box)
+        assert (type(env_list[0].action_space) == gym.spaces.discrete.Discrete)
 
         # Initialize hyperparameters for training with PPO
         self._init_hyperparameters(hyperparameters)
 
         # Extract environment information
-        self.env = env
-        self.obs_dim = env.observation_space.shape[0]
-        self.act_dim = env.action_space.shape[0]
+        self.env_list = env_list
+        self.obs_dim = env_list[0].observation_space.shape[1]
+        self.act_dim = 2
 
         # Initialize actor and critic networks
         # ALG STEP 1
@@ -77,10 +77,9 @@ class PPO:
                 Return:
                         None
         """
-        print(f"Learning... Running {
-              self.max_timesteps_per_episode} timesteps per episode, ", end='')
-        print(f"{self.timesteps_per_batch} timesteps per batch for a total of {
-              total_timesteps} timesteps")
+        print(
+            f"Learning... Running { self.max_timesteps_per_episode} timesteps per episode, ", end='')
+        print(f"{self.timesteps_per_batch} timesteps per batch for a total of { total_timesteps} timesteps")
         t_so_far = 0  # Timesteps simulated so far
         i_so_far = 0  # Iterations ran so far
         # ALG STEP 2
@@ -188,38 +187,39 @@ class PPO:
         t = 0  # Keeps track of how many timesteps we've run so far this batch
 
         # Keep simulating until we've run more than or equal to specified timesteps per batch
-        while t < self.timesteps_per_batch:
-            ep_rews = []  # rewards collected per episode
+        for env in self.env_list:
+            while t < self.timesteps_per_batch:
+                ep_rews = []  # rewards collected per episode
 
-            # Reset the environment. sNote that obs is short for observation.
-            obs, _ = self.env.reset()
-            done = False
+                # Reset the environment. sNote that obs is short for observation.
+                obs, _ = env.reset()
+                done = False
 
-            # Run an episode for a maximum of max_timesteps_per_episode timesteps
-            for ep_t in range(self.max_timesteps_per_episode):
-                # If render is specified, render the environment
-                if self.render and (self.logger['i_so_far'] % self.render_every_i == 0) and len(batch_lens) == 0:
-                    self.env.render()
+                # Run an episode for a maximum of max_timesteps_per_episode timesteps
+                for ep_t in range(self.max_timesteps_per_episode):
+                    # If render is specified, render the environment
+                    if self.render and (self.logger['i_so_far'] % self.render_every_i == 0) and len(batch_lens) == 0:
+                        env.render()
 
-                t += 1  # Increment timesteps ran this batch so far
+                    t += 1  # Increment timesteps ran this batch so far
 
-                # Track observations in this batch
-                batch_obs.append(obs)
+                    # Track observations in this batch
+                    batch_obs.append(obs)
 
-                # Calculate action and make a step in the env.
-                # Note that rew is short for reward.
-                action, log_prob = self.get_action(obs)
-                obs, rew, terminated, truncated, _ = self.env.step(action)
-                done = terminated or truncated
+                    # Calculate action and make a step in the env.
+                    # Note that rew is short for reward.
+                    action, log_prob = self.get_action(obs)
+                    obs, rew, terminated, truncated, _ = env.step(action)
+                    done = terminated or truncated
 
-                # Track recent reward, action, and action log probability
-                ep_rews.append(rew)
-                batch_acts.append(action)
-                batch_log_probs.append(log_prob)
+                    # Track recent reward, action, and action log probability
+                    ep_rews.append(rew)
+                    batch_acts.append(action)
+                    batch_log_probs.append(log_prob)
 
-                # If the environment tells us the episode is terminated, break
-                if done:
-                    break
+                    # If the environment tells us the episode is terminated, break
+                    if done:
+                        break
 
             # Track episodic lengths and rewards
             batch_lens.append(ep_t + 1)
