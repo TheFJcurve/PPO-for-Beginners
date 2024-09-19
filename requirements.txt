@@ -40,3 +40,5 @@ gym-anytrading
 ipynb
 ipykernel
 stable-baselines3
+scikit-learn
+

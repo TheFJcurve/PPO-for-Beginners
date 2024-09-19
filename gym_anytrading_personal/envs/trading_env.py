@@ -31,6 +31,7 @@ class TradingEnv(gym.Env):
         self.render_mode = render_mode
 
         self.df = df
+        self.ticker_names = self.df['stock_ticker'].unique().tolist()
         self.window_size = window_size
         self.prices, self.signal_features = self._process_data()
         self.shape = (window_size, self.signal_features.shape[1])
@@ -57,7 +58,8 @@ class TradingEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed, options=options)
-        self.action_space.seed(int((self.np_random.uniform(0, seed if seed is not None else 1))))
+        self.action_space.seed(
+            int((self.np_random.uniform(0, seed if seed is not None else 1))))
 
         self._truncated = False
         self._current_tick = self._start_tick

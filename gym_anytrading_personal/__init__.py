@@ -23,3 +23,8 @@ register(
         'frame_bound': (30, len(datasets.STOCKS_GOOGL))
     }
 )
+
+register(
+    id='stocks-v0',
+    entry_point='gym_anytrading_personal.envs:MultiStockTradingEnv'
+)
