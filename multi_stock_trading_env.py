@@ -22,50 +22,34 @@ matplotlib.use("Agg")
 # from stable_baselines3.common import logger
 
 
-class PersonalMultiStockTradingEnv(gym.Env):
+class MultiStockTradingEnv(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
     def __init__(
         self,
         dfs,
-        initial_amount,
-        trade_cost,
-        num_features,
-        num_stocks,
         window_size,
         frame_bound,
         scalers=None,
-        tech_indicator_list=[],
         reward_scaling=1e-5,
         suppresention_rate=0.66,
         representative=None
     ):
-        if len(tech_indicator_list) != 0:
-            num_features = len(tech_indicator_list)
-
         self.dfs = dfs
-        self.stockTickers = self.dfs['stock_ticker'].unqiue().tolist()
+        self.stockTickers = self.dfs['stock_ticker'].unique().tolist()
         self.num_stocks = len(self.stockTickers)
         self.price_df = self.dfs[['stock_ticker', 'prc']]
-        self.initial_amount = initial_amount
-        self.margin = initial_amount
-        self.portfolio = [0]*num_stocks
-        self.PortfolioValue = 0
-        self.reserve = initial_amount
-        self.trade_cost = trade_cost
-        self.state_space = num_features
-        self.assets = num_stocks
+        self.assets = self.num_stocks
         self.reward_scaling = reward_scaling
-        self.tech_indicators = tech_indicator_list
         self.window_size = window_size
         self.frame_bound = frame_bound
 
         # spaces
         self.action_space = spaces.Box(
-            low=-1, high=1, shape=(num_stocks,), dtype=np.float32)
+            low=-1, high=1, shape=(self.num_stocks,), dtype=np.float32)
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(num_stocks, window_size, num_features), dtype=np.float32)
+            low=-np.inf, high=np.inf, shape=(self.num_stocks, window_size), dtype=np.float32)
 
         # episode
         self._start_tick = self.window_size
