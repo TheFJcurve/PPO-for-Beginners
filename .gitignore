@@ -4,9 +4,11 @@ __pycache__/
 *$py.class
 
 venv
+.venv
 *.pth
 
 logs
 model_checkpoints
 hackathon_sample_v2.csv
 trading_bot.zip
+sorted_with_tomorrow.parquet
