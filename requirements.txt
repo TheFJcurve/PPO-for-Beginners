@@ -53,3 +53,5 @@ seaborn
 yfinance
 PyPortfolioOpt
 plotly
+statsmodels
+
